@@ -9,7 +9,7 @@ import spark.Request;
 import spark.Spark;
 
 /**
- * Enhörningsdatabasen
+ * Recensitiondatabasen
  * 
  * @author Mårten, Anton
  */
@@ -33,6 +33,7 @@ public class UnicornService {
         });
 
         get("/:id", (request, response) -> {
+            System.out.println("In GET id");
             response.type("application/json");
             response.body(gson.toJson(storage.fetchResturant(Integer.parseInt(request.params(":id")))));
             response.status(200);
@@ -40,18 +41,19 @@ public class UnicornService {
         });
 
         post("/", ((request, response) -> {
-            Calendar calendar = Calendar.getInstance();
-            java.util.Date now = calendar.getTime();
-            java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+            System.out.println(request.params("description"));
+            System.out.println("In POST");
+        
             Visit visit = new Visit();
             visit.grade = Integer.parseInt(request.params("grade"));
+            visit.restaurant = request.params("restaurant");
             visit.description = request.params("description");
             visit.reportedBy = request.params("reportedBy");
-            visit.image = request.params("image");
-            visit.spottedWhere.lat = Double.parseDouble(request.params("location"));
-            visit.spottedWhen = Timestamp.valueOf(request.params(currentTimestamp.toString()));
             storage.addRestaurant(visit);
+            System.out.println("visit");
 
+            response.type("application/json");
+            response.header("Access-Control-Allow-Origin", "*");
             response.body("Added a Resturant"); // Sätt ett tomt svar
             response.status(200);
             return response.body(); // Skicka tillbaka svaret
@@ -59,6 +61,7 @@ public class UnicornService {
 
 
         put("/", (request, response) -> {
+            System.out.println("In PUT");
             Calendar calendar = Calendar.getInstance();
             java.util.Date now = calendar.getTime();
             java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
@@ -66,9 +69,6 @@ public class UnicornService {
             visit.grade = Integer.parseInt(request.params("name"));
             visit.description = request.params("description");
             visit.reportedBy = request.params("reportedBy");
-            visit.image = request.params("image");
-            visit.spottedWhere.lat = Double.parseDouble(request.params("location"));
-            visit.spottedWhen = Timestamp.valueOf(request.params(currentTimestamp.toString()));
             storage.updateRestaurant(visit);
             response.body("Updaterad");
             return response.body();
@@ -76,6 +76,7 @@ public class UnicornService {
 
 
         delete("/", (request, response) -> {
+            System.out.println("In DELETE");
             int nbr = Integer.parseInt(request.params("id"));
             storage.deleteRestaurant(nbr);
             response.body("Deleted");
