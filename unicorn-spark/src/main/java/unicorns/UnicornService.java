@@ -2,9 +2,11 @@ package unicorns;
 
 import static spark.Spark.*;
 
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.util.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import spark.Request;
 import spark.Spark;
 
@@ -18,15 +20,16 @@ public class UnicornService {
     public static void main(String[] args) throws Exception {
 		Gson gson = new Gson();
 		Storage storage = new Storage();
+        Filter_spark filter = new Filter_spark();
+        port(8080);
+        filter.apply();
 		storage.setup();
 
-		port(8080);
 
-		// Hämtar en lista över alla enhörningar
+        // Hämtar en lista över alla enhörningar
 		get("/", (request, response) -> {
             System.out.println("In get!");
             response.type("application/json");
-            response.header("Access-Control-Allow-Origin", "*");
             response.body(gson.toJson(storage.fetchRestaurants()));
             response.status(200);
             return response.body(); // Skicka tillbaka svaret
@@ -40,23 +43,22 @@ public class UnicornService {
             return response.body(); // Skicka tillbaka svaret
         });
 
-        post("/", ((request, response) -> {
-            System.out.println(request.params("description"));
+        post("/", "application/json", ((request, response) -> {
+            Map<String,Object> result = new Gson().fromJson(request.body(), Map.class);
             System.out.println("In POST");
-        
+            System.out.println(result.get("grade"));
             Visit visit = new Visit();
-            visit.grade = Integer.parseInt(request.params("grade"));
-            visit.restaurant = request.params("restaurant");
-            visit.description = request.params("description");
-            visit.reportedBy = request.params("reportedBy");
+            visit.grade = Integer.parseInt(result.get("grade").toString());
+            visit.restaurant = result.get("restaurant").toString();
+            visit.description = result.get("description").toString();
+            visit.reportedBy = result.get("reportedBy").toString();
             storage.addRestaurant(visit);
-            System.out.println("visit");
+            System.out.println(visit);
+            return "hello World";
 
-            response.type("application/json");
-            response.header("Access-Control-Allow-Origin", "*");
-            response.body("Added a Resturant"); // Sätt ett tomt svar
-            response.status(200);
-            return response.body(); // Skicka tillbaka svaret
+//            response.body(); // Sätt ett tomt svar
+//            response.status(200);
+//            return response.body(); // Skicka tillbaka svaret
         }));
 
 
@@ -84,6 +86,8 @@ public class UnicornService {
         });
 	}
 
+
+
 	private static String preferredResponseType(Request request) {
 		// Ibland skickar en klient en lista av format som den önskar.
 		// Här splittar vi upp listan och tar bort eventuella mellanslag.
@@ -102,5 +106,4 @@ public class UnicornService {
 		// Om vi inte stöder något av formaten, skicka tillbaka det första formatet
 		return types.get(0);
 	}
-
 }

@@ -53,12 +53,12 @@ public class Storage {
 		try {
 			Statement statement = connection.createStatement();
 			statement.executeUpdate("DROP TABLE IF EXISTS restaurants");
-			statement.executeUpdate("CREATE TABLE restaurants (id INTEGER PRIMARY KEY, name TEXT, grade INTEGER, description TEXT, reportedBy TEXT, location TEXT, lat REAL, lon REAL, spottedWhen DATETIME CURRENT_TIMESTAMP, image TEXT)");
-			statement.executeUpdate("INSERT INTO restaurants VALUES (1, 'Restaurang Niagara', 7, 'Snuskig skolmat ', 'Mike', 'Malmö, Sverige', 55.6092688, 12.9940, '2008-09-23 12:00:00', 'http://www.allakartor.se/venue_images_475/473321_2975148.jpg')");
-			statement.executeUpdate("INSERT INTO restaurants VALUES (2, 'Mia Maria', 7, 'Trvlig Maria det där! ', 'Bike', 'Malmö, Sverige', 55.6092688, 12.9940, '2008-09-23 12:00:00', 'http://www.allakartor.se/venue_images_475/473321_2975148.jpg')");
-			statement.executeUpdate("INSERT INTO restaurants VALUES (3, 'Välfärden', 7, 'Här mår man väl! ', 'Spike', 'Malmö, Sverige', 55.6092688, 12.9940, '2008-09-23 12:00:00', 'http://www.allakartor.se/venue_images_475/473321_2975148.jpg')");
-			statement.executeUpdate("INSERT INTO restaurants VALUES (4, 'Lilla Köket', 7, 'Väldigt litet kök ', 'Dike', 'Malmö, Sverige', 55.6092688, 12.9940, '2008-09-23 12:00:00', 'http://www.allakartor.se/venue_images_475/473321_2975148.jpg')");
-			statement.executeUpdate("INSERT INTO restaurants VALUES (5, 'La Bonne Vie', 7, 'Konstig italiensk falafel? ', 'Ike', 'Malmö, Sverige', 55.6092688, 12.9940, '2008-09-23 12:00:00', 'http://www.allakartor.se/venue_images_475/473321_2975148.jpg')");
+			statement.executeUpdate("CREATE TABLE restaurants (id INTEGER PRIMARY KEY, restaurant_name TEXT, grade INTEGER, description TEXT, reportedBy TEXT)");
+			statement.executeUpdate("INSERT INTO restaurants VALUES (1, 'Restaurang Niagara', 7, 'Sunkig skolmat ', 'Mike')");
+			statement.executeUpdate("INSERT INTO restaurants VALUES (2, 'Mia Maria', 7, 'Trvlig Maria det där! ', 'Bike')");
+			statement.executeUpdate("INSERT INTO restaurants VALUES (3, 'Välfärden', 7, 'Här mår man väl! ', 'Spike')");
+			statement.executeUpdate("INSERT INTO restaurants VALUES (4, 'Lilla Köket', 7, 'Väldigt litet kök ', 'Dike')");
+			statement.executeUpdate("INSERT INTO restaurants VALUES (5, 'La Bonne Vie', 7, 'Konstig italiensk falafel?', 'Ike')");
 			statement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -86,6 +86,7 @@ public class Storage {
 				visit.grade = rs.getInt("grade");
 				visit.description = rs.getString("description");
 				visit.reportedBy = rs.getString("reportedBy");
+                visit.restaurant = rs.getString("restaurant_name");
 				restaurants.add(visit);
 			}
 			
@@ -116,6 +117,7 @@ public class Storage {
                 visit.grade = rs.getInt("grade");
 				visit.description = rs.getString("description");
 				visit.reportedBy = rs.getString("reportedBy");
+                visit.restaurant = rs.getString("restaurant_name");
 			}
 			
 			statement.close();
@@ -125,6 +127,27 @@ public class Storage {
 		
 		return visit;
 	}
+
+    public int getAverageGrade(String restaurant){
+        int grade = 0;
+        int count = 0;
+        try {
+            Statement statement = connection.createStatement();
+
+            ResultSet rs = statement.executeQuery("SELECT grade FROM restaurants WHERE restaurant_name = " + restaurant);
+            if (rs.next()) {
+               count++;
+                grade  += rs.getInt("grade");
+
+            }
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return grade/count;
+    }
 	
 	/**
 	 * Adds a new visit.
@@ -136,7 +159,7 @@ public class Storage {
 			Statement statement = connection.createStatement();
 			
 			String sql = "INSERT INTO restaurants (grade, description, reportedBy, "
-					   + "location, lat, lon, spottedWhen, image) "
+					   + "restaurant_name) "
 					   + "VALUES ('" + visit.grade + "', "
 					   + "'" + visit.description + "', "
 					   + "'" + visit.reportedBy + "', "
@@ -160,7 +183,7 @@ public class Storage {
 			Statement statement = connection.createStatement();
 			
 			String sql = "UPDATE restaurants SET id = " + visit.id + ", "
-                       + "name = '" + visit.restaurant + "', "
+                       + "restaurant_name = '" + visit.restaurant + "', "
 					   + "grade = '" + visit.grade + "', "
 					   + "description = '" + visit.description + "', "
 					   + "reportedBy = '" + visit.reportedBy + "', "
