@@ -1,21 +1,16 @@
-package unicorns;
-
-import java.sql.Timestamp;
+package recensions;
 
 /**
- * A simple class representing a unicorn.
+ * En klass som representerar ett besök av en restaurang.
  * 
- * @author "Johan Holmberg, Malmö university"
- * @since 1.0
+ * @author "Mårten & Anton"
  */
 public class Visit {
 	public String restaurant = "";
-	public int id = 0;
 	public String description = "";
 	public int grade = 0;
 	public String reportedBy = "";
 	
 	public Visit() {
-		
 	}
 }

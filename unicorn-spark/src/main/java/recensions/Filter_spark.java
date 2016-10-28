@@ -1,4 +1,4 @@
-package unicorns;
+package recensions;
 import java.util.HashMap;
 import spark.Filter;
 import spark.Request;
@@ -6,7 +6,9 @@ import spark.Response;
 import spark.Spark;
 
 /**
- * Created by Marten on 2016-10-25.
+ * Created by Marten & Anton on 2016-10-25.
+ * En filterklass för att slippa komma runt cross origin
+ * anrop från Websidan.
  */
 public final class Filter_spark {
 
